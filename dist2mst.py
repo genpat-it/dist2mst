@@ -6,8 +6,8 @@ from numba.typed import List, Dict
 from tqdm import tqdm
 
 """
-MST Builder with Numba Acceleration
-===================================
+dist2nwk
+========
 Version: 0.0.1
 Author: GenPat
 Contact: genpat@izs.it

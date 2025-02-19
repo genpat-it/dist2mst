@@ -1,4 +1,4 @@
-# MST Builder with Numba Acceleration
+# dist2nwk
 
 Version: 0.0.1  
 Author: GenPat  
@@ -29,8 +29,8 @@ MST Builder is a high-performance tool for constructing Minimum Spanning Trees (
 
 ```bash
 # Clone the repository
-git clone https://github.com/genpat/mst-builder.git
-cd mst-builder
+git clone https://github.com/genpat-it/dist2nwk.git
+cd dist2nwk
 
 # Install required packages
 pip install -r requirements.txt
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-python mst_builder.py input_matrix.tsv output_tree.nwk [options]
+python dist2nwk.py input_matrix.tsv output_tree.nwk [options]
 ```
 
 ### Command-line Arguments
@@ -87,13 +87,13 @@ Sample3	0.8	0.6	0
 
 ```bash
 # Basic usage
-python mst_builder.py distance_matrix.tsv output_tree.nwk
+python dist2nwk.py distance_matrix.tsv output_tree.nwk
 
 # With branch recrafting and 8 threads
-python mst_builder.py distance_matrix.tsv output_tree.nwk --recraft --threads 8
+python dist2nwk.py distance_matrix.tsv output_tree.nwk --recraft --threads 8
 
 # Quiet mode (minimal output)
-python mst_builder.py distance_matrix.tsv output_tree.nwk --quiet
+python dist2nwk.py distance_matrix.tsv output_tree.nwk --quiet
 ```
 
 ## Output
