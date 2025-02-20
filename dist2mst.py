@@ -6,7 +6,7 @@ from numba.typed import List, Dict
 from tqdm import tqdm
 
 """
-dist2nwk
+dist2mst
 ========
 Version: 0.0.1
 Author: GenPat
