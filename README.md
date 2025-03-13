@@ -1,22 +1,24 @@
 # dist2mst
 
-Version: 0.0.1  
+Version: 0.0.2  
 Author: GenPat  
 Contact: genpat@izs.it
 
 ## Overview
 
-MST Builder is a high-performance tool for constructing Minimum Spanning Trees (MSTs) from symmetric distance matrices. The tool uses Numba JIT compilation and parallelization to significantly accelerate tree construction and branch recrafting operations.
+`dist2mst` is a high-performance tool for constructing Minimum Spanning Trees (MSTs) from symmetric distance matrices. The tool uses Numba JIT compilation and parallelization to significantly accelerate tree construction for large datasets. This implementation provides advanced clustering capabilities and subtree extraction.
 
 ## Features
 
 - **Numba-accelerated algorithms**: Core numerical functions are JIT-compiled for maximum performance
 - **Parallel processing**: Uses multiple CPU cores for faster computation on large matrices
 - **Zero-distance grouping**: Special handling for grouping nodes with zero Hamming distance
-- **Branch recrafting**: Optional verification and correction of branch lengths
-- **Progress monitoring**: Real-time progress tracking with tqdm progress bars
-- **Detailed logging**: Comprehensive timing and performance metrics
-- **Newick format output**: Produces standard Newick tree format for compatibility with Newick visualization tools.
+- **Newick format output**: Produces standard Newick tree format for compatibility with visualization tools
+- **Hierarchical clustering**: Identify clusters based on maximum path distance thresholds
+- **Targeted clustering**: Find clusters starting from specific samples of interest
+- **Cluster filtering**: Include only clusters within specific size ranges
+- **NWK file generation**: Export individual Newick files for each eligible cluster
+- **Detailed statistics**: Comprehensive metrics about clusters and performance
 
 ## Requirements
 
@@ -24,6 +26,7 @@ MST Builder is a high-performance tool for constructing Minimum Spanning Trees (
 - NumPy
 - Numba
 - tqdm
+- Pandas
 
 ## Installation
 
@@ -48,7 +51,12 @@ python dist2mst.py input_matrix.tsv output_tree.nwk [options]
 |----------|-------------|
 | `input_file` | TSV file containing the symmetric distance matrix |
 | `output_file` | Output file for the Newick tree |
-| `--recraft` | Enable branch recrafting to verify/correct branch lengths |
+| `--cluster-threshold FLOAT` | Maximum path distance threshold for clusters |
+| `--cluster-output FILE` | Output file for cluster data (TSV) |
+| `--min-cluster-size INT` | Minimum number of samples required to generate a cluster NWK file |
+| `--max-cluster-size INT` | Maximum number of samples for generating a cluster NWK file |
+| `--cluster-nwk-dir DIR` | Directory to store individual NWK files for clusters |
+| `--samples-of-interest FILE` | File containing sample IDs to use as starting points for clusters |
 | `--threads N` | Number of threads to use (0=auto-detect) |
 | `--quiet` | Minimize progress output (disable progress bars) |
 | `--version` | Show version information and exit |
@@ -68,59 +76,97 @@ Sample2	0.5	0	0.6
 Sample3	0.8	0.6	0
 ```
 
-## Algorithm Details
+### Samples of Interest File Format
 
-dist2mst implements a modified Prim's algorithm for Minimum Spanning Tree (MST) construction, optimized for distance matrices in bioinformatics:
+If using the `--samples-of-interest` option, the file should contain one sample ID per line:
 
-1. **Central Node Selection**: The algorithm starts by identifying the central node with minimum sum of distances to all other nodes, rather than starting from a random or first node.
-
-2. **Greedy MST Construction**: Following Prim's algorithm principles, the tree expands by always selecting the closest unvisited node to any node already in the tree.
-
-3. **Zero-distance Grouping**: The implementation includes special handling for nodes with zero distance, grouping them into a single node in the tree - a feature particularly useful for identical sequences in genomic data.
-
-4. **Branch Recrafting**: Optional verification ensures branch lengths in the tree match the original distance matrix, correcting any discrepancies.
-
-The implementation prioritizes computational efficiency through:
-- Vectorized operations for distance calculations
-- Numba JIT compilation of core numerical functions
-- Parallel processing of independent calculations
-
-## Performance Optimizations
-
-- Uses Numba JIT compilation for core numerical functions
-- Parallelizes distance calculations with `prange`
-- Optimizes memory access patterns for Numba compatibility
-- Uses vectorized numpy operations where possible
-- Provides thread count control via command line
-
-## Example
-
-```bash
-# Basic usage
-python dist2mst.py distance_matrix.tsv output_tree.nwk
-
-# With branch recrafting and 8 threads
-python dist2mst.py distance_matrix.tsv output_tree.nwk --recraft --threads 8
-
-# Quiet mode (minimal output)
-python dist2mst.py distance_matrix.tsv output_tree.nwk --quiet
+```
+Sample_A
+Sample_B
+Sample_C
 ```
 
-## Visualization
+## Algorithm Details
 
-The Newick (.nwk) files generated by dist2mst can be visualized using various Newick visualization tools. For optimal visualization, we recommend:
+### MST Construction
 
-[SPREAD](https://github.com/genpat-it/spread) - A modern tool for visualizing and exploring trees in Newick format.
+`dist2mst` implements a modified Prim's algorithm for Minimum Spanning Tree (MST) construction:
 
-SPREAD provides an interactive interface for tree analysis, allowing you to:
-- Visualize large-scale trees
-- Colorize branches by metadata
-- Export high-quality images
-- Perform basic tree operations
+1. **Central Node Selection**: The algorithm identifies the central node with minimum sum of distances to all other nodes.
+
+2. **Greedy MST Construction**: The tree expands by always selecting the closest unvisited node to any node already in the tree.
+
+3. **Zero-distance Grouping**: Nodes with zero distance are grouped into a single node in the tree - a feature particularly useful for identical sequences in genomic data.
+
+### Clustering
+
+The tool offers two clustering approaches:
+
+1. **Global Clustering**: Identifies all clusters where the maximum path distance between any two nodes does not exceed the threshold.
+
+2. **Targeted Clustering**: Starts from specified samples of interest and includes all other samples within the threshold distance.
+
+## Examples
+
+### Basic MST Construction
+
+```bash
+# Generate an MST from a distance matrix and save as Newick format
+python dist2mst.py distance_matrix.tsv output_tree.nwk
+```
+
+### Global Clustering
+
+```bash
+# Find all clusters with a maximum path distance of 10
+python dist2mst.py distance_matrix.tsv output_tree.nwk --cluster-threshold 10 --cluster-output clusters.tsv
+```
+
+### Targeted Clustering with NWK Generation
+
+```bash
+# Find clusters starting from specific samples of interest
+# Generate individual NWK files for clusters with 5-50 samples
+python dist2mst.py distance_matrix.tsv output_tree.nwk \
+  --cluster-threshold 10 \
+  --samples-of-interest my_samples.txt \
+  --cluster-output clusters.tsv \
+  --min-cluster-size 5 \
+  --max-cluster-size 50 \
+  --cluster-nwk-dir ./cluster_nwk_files
+```
+
+### Performance Optimization
+
+```bash
+# Set specific thread count and minimize output
+python dist2mst.py distance_matrix.tsv output_tree.nwk --threads 16 --quiet
+```
+
+## Output Files
+
+### Main Newick Tree
+
+The primary output is a Newick-format tree representing the entire MST.
+
+### Cluster TSV File (optional)
+
+When using `--cluster-output`, a TSV file will be generated with the following columns:
+- `Cluster`: Cluster ID (sorted by size, largest first)
+- `Samples`: Comma-separated list of sample IDs in the cluster
+- `Size`: Number of samples in the cluster
+- `NWK_Path`: Path to the individual NWK file (if cluster NWK generation is enabled)
+
+### Individual Cluster NWK Files (optional)
+
+When using `--cluster-nwk-dir` with `--min-cluster-size`, individual Newick files will be generated for each eligible cluster with the naming format:
+```
+cluster_<size>_<max_distance>_<unique_id>.nwk
+```
 
 ## Benchmark
 
-Below are performance results from running dist2mst on a large dataset with 5,000 nodes.
+Below are performance results from running dist2mst on a large dataset.
 
 **System Specifications:**
 ```bash
@@ -137,7 +183,7 @@ Linux gtc-collab-int.izs.intra 4.18.0-553.el8_10.x86_64 #1 SMP Fri May 24 08:32:
 **Benchmark Results:**
 ```
 $ time python dist2mst.py benchmarks/distance_matrix_5000.tsv 5000.nwk --threads 32
-MST Builder v0.0.1
+MST Builder v0.0.2
 Author: GenPat
 Contact: genpat@izs.it
 --------------------------------------------------
@@ -150,17 +196,7 @@ Contact: genpat@izs.it
 [+] Finding optimal central node...
 [+] Selected node Sample_3275 as central node (index 3274)
 [+] Building MST tree structure...
-Building MST:  10%|████████▏                                                                         | 498/4998 [00:18<02:56, 25.49node/s][+] Added 499/4999 nodes to MST (10.0%)
-Building MST:  20%|████████████████▎                                                                 | 996/4998 [00:39<03:09, 21.07node/s][+] Added 998/4999 nodes to MST (20.0%)
-Building MST:  30%|████████████████████████▏                                                        | 1496/4998 [01:04<02:58, 19.60node/s][+] Added 1497/4999 nodes to MST (29.9%)
-Building MST:  40%|████████████████████████████████▎                                                | 1994/4998 [01:30<02:31, 19.85node/s][+] Added 1996/4999 nodes to MST (39.9%)
-Building MST:  50%|████████████████████████████████████████▍                                        | 2492/4998 [01:53<01:49, 22.83node/s][+] Added 2495/4999 nodes to MST (49.9%)
-Building MST:  60%|████████████████████████████████████████████████▍                                | 2990/4998 [02:12<01:08, 29.33node/s][+] Added 2994/4999 nodes to MST (59.9%)
-Building MST:  70%|████████████████████████████████████████████████████████▌                        | 3492/4998 [02:27<00:34, 43.19node/s][+] Added 3493/4999 nodes to MST (69.9%)
-Building MST:  80%|████████████████████████████████████████████████████████████████▌                | 3985/4998 [02:35<00:12, 80.92node/s][+] Added 3992/4999 nodes to MST (79.9%)
-Building MST:  89%|███████████████████████████████████████████████████████████████████████▌        | 4469/4998 [02:39<00:02, 211.09node/s][+] Added 4491/4999 nodes to MST (89.8%)
-Building MST:  97%|█████████████████████████████████████████████████████████████████████████████▉  | 4868/4998 [02:39<00:00, 751.47node/s][+] Added 4990/4999 nodes to MST (99.8%)
-Building MST: 100%|█████████████████████████████████████████████████████████████████████████████████| 4998/4998 [02:39<00:00, 31.27node/s]
+Building MST: 100%|█████████████████████████████████████████████████████████████████| 4998/4998 [02:39<00:00, 31.27node/s]
 [+] MST construction completed in 161.16 seconds
 [+] Added 4999 nodes to tree
 [+] Converting tree to Newick format...
@@ -168,27 +204,36 @@ Building MST: 100%|████████████████████�
 [+] Writing Newick tree to 5000.nwk
 [+] MST processing completed in 172.33 seconds
 [+] Final Newick tree saved to 5000.nwk
-[+] MST Builder v0.0.1 (GenPat) completed successfully
+[+] MST Builder v0.0.2 (GenPat) completed successfully
 [+] Contact: genpat@izs.it
 real    2m53.166s
 user    2m51.651s
 sys     0m15.955s
 ```
 
-**Performance Summary:**
-- **Total processing time:** 2m 53s 
-- **Matrix loading:** 11.16s
-- **MST construction:** 161.16s 
-- **Newick conversion and file output:** 0.01s
+## Visualization
 
-The benchmark demonstrates excellent scalability with multi-threading, processing nearly 5,000 nodes in under 3 minutes. Note how the processing speed increases significantly as the algorithm progresses, going from ~20 nodes/s initially to over 750 nodes/s in the final stage.
+The Newick (.nwk) files generated by dist2mst can be visualized using various tools:
+
+- [SPREAD](https://github.com/genpat-it/spread) - A modern tool for visualizing and exploring trees in Newick format
+- [iTOL](https://itol.embl.de/) - Interactive Tree Of Life
+- [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) - A graphical viewer of phylogenetic trees
+
+## New in Version 0.0.2
+
+- **Targeted clustering**: Find clusters starting from specific samples of interest
+- **Cluster size filtering**: Generate NWK files only for clusters within specific size ranges
+- **Individual cluster export**: Export separate Newick files for each eligible cluster
+- **Cluster statistics**: Detailed metrics about cluster sizes and distribution
+- **Pandas integration**: Improved data loading with Pandas
+- **Enhanced debugging**: Better error reporting and diagnostic information
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This is a free and open-source software that allows anyone to:
-- Use the software for any purpose
-- Study how the software works and modify it
-- Redistribute the software
-- Improve the software and release your improvements to the public
+## Contact
+
+For questions, issues, or collaborations, please contact:
+- Email: genpat@izs.it
+- GitHub: https://github.com/genpat-it/dist2mst
