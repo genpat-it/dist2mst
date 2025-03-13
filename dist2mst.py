@@ -539,7 +539,7 @@ def main(input_file, output_file, cluster_threshold=None, cluster_output=None,
     
     Author: GenPat
     Contact: genpat@izs.it
-    Version: 0.0.3
+    Version: 0.0.2
     """
     try:
         total_start_time = time.time()
@@ -683,7 +683,7 @@ def main(input_file, output_file, cluster_threshold=None, cluster_output=None,
         total_time = time.time() - total_start_time
         print(f"[+] MST processing completed in {total_time:.2f} seconds")
         print(f"[+] Final Newick tree saved to {output_file}")
-        print(f"[+] MST Builder v0.0.3 (GenPat) completed successfully")
+        print(f"[+] MST Builder v0.0.2 (GenPat) completed successfully")
         print(f"[+] Contact: genpat@izs.it")
     except Exception as e:
         print(f"[-] ERROR: {str(e)}")
@@ -695,7 +695,7 @@ if __name__ == "__main__":
     import argparse
     
     # Version and attribution info
-    VERSION = "0.0.3"
+    VERSION = "0.0.2"
     AUTHOR = "GenPat"
     CONTACT = "genpat@izs.it"
     
