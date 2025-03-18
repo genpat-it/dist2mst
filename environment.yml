@@ -1,0 +1,10 @@
+name: dist2mst_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.6
+  - numba=0.56.4
+  - numpy=1.23.5
+  - pandas=1.5.3
+  - tqdm=4.64.1
