@@ -1,4 +1,4 @@
-numba==0.58.0
-numpy==1.25.0
-pandas==2.2.3
-tqdm==4.66.1
+numba==0.53.1
+numpy==1.19.5
+pandas==1.1.5
+tqdm==4.64.1
