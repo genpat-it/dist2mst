@@ -100,11 +100,6 @@ def build_mst_accelerated(matrix, names):
     Build MST with numba acceleration
     """
     
-    idx1 = names.index("Lm_0199")
-    idx2 = names.index("Lm_0686")
-    print(f"[DEBUG] In build_mst_accelerated - Distance between Lm_0199 and Lm_0686: {matrix[idx1][idx2]}")
-    print(f"[DEBUG] Matrix data type: {matrix.dtype}")
-    
     print(f"[+] Building MST for {len(names)} nodes with Numba acceleration")
     start_time = time.time()
     n = len(names)
@@ -548,11 +543,6 @@ def main(input_file, output_file, cluster_threshold=None, cluster_output=None,
         print(f"[+] Reading distance matrix from {input_file}")
         read_start = time.time()
         matrix, names = read_distance_matrix(input_file)
-        
-         # Dopo aver letto la matrice
-        dist_0199_0686 = matrix[names.index("Lm_0199")][names.index("Lm_0686")]
-        print(f"[DEBUG] Distance between Lm_0199 and Lm_0686 in matrix: {dist_0199_0686}")
-
         
         read_time = time.time() - read_start
         print(f"[+] Loaded {len(names)}x{len(names)} distance matrix in {read_time:.2f} seconds")
