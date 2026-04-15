@@ -10,6 +10,8 @@ Version: 0.0.2
 Author: GenPat  
 Contact: genpat@izs.it
 
+> **Looking for maximum performance?** Check out [dist2mst-rs](https://github.com/genpat-it/dist2mst-rs) — the Rust rewrite with ~900x speedup (5000 nodes in 0.19s vs 2m53s).
+
 ## Overview
 
 `dist2mst` is a high-performance tool for constructing Minimum Spanning Trees (MSTs) from symmetric distance matrices. The tool uses Numba JIT compilation and parallelization to significantly accelerate tree construction for large datasets. This implementation provides advanced clustering capabilities and subtree extraction.
