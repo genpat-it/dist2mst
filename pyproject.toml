@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=64"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "dist2mst"
@@ -23,7 +23,6 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
@@ -41,3 +40,6 @@ Issues = "https://github.com/genpat-it/dist2mst/issues"
 
 [project.scripts]
 dist2mst = "dist2mst:main_cli"
+
+[tool.setuptools]
+py-modules = ["dist2mst"]
