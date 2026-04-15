@@ -222,15 +222,11 @@ cluster_<size>_<max_distance>_<unique_id>.nwk
 Below are performance results from running dist2mst on a large dataset.
 
 **System Specifications:**
-```bash
-$ lscpu | grep -E "Model name|Socket|Core|Thread"
-Thread(s) per core:  1
-Core(s) per socket:  48
-Socket(s):           4
-Model name:          Intel(R) Xeon(R) Gold 6252N CPU @ 2.30GHz
-
-$ uname -a
-Linux linux-server 4.18.0-553.el8_10.x86_64 #1 SMP Fri May 24 08:32:12 EDT 2024 x86_64 x86_64 x86_64 GNU/Linux
+```
+CPU:    4x Intel Xeon Gold 6252N @ 2.30GHz (192 threads)
+OS:     Linux x86_64 (RHEL 8)
+Python: 3.10.6
+Numba:  0.58.0
 ```
 
 **Benchmark Results:**
