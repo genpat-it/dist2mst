@@ -1,22 +1,25 @@
 # Use Miniconda as the base image
 FROM continuumio/miniconda3
 
+LABEL maintainer="andreaderuvo"
+LABEL org.opencontainers.image.source="https://github.com/genpat-it/dist2mst"
+LABEL org.opencontainers.image.description="High-performance MST construction from distance matrices with Numba acceleration"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.version="0.0.2"
+
 # Set the working directory
 WORKDIR /app
 
-# Copy your custom environment.yml into the container
+# Copy and create the Conda environment
 COPY environment.yml .
-
-# Create the Conda environment using your environment.yml
-RUN conda env create -f environment.yml
+RUN conda env create -f environment.yml && \
+    conda clean --all --yes
 
 # Ensure the Conda environment is activated by setting the PATH
 ENV PATH="/opt/conda/envs/dist2mst_env/bin:$PATH"
 
-# Clone the repository into a temporary directory and move only dist2mst.py
-RUN git clone https://github.com/genpat-it/dist2mst.git /tmp/dist2mst --depth 1 && \
-    mv /tmp/dist2mst/dist2mst.py . && \
-    rm -rf /tmp/dist2mst
+# Copy the application script directly from the build context
+COPY dist2mst.py .
 
 # Set the entrypoint to run the dist2mst.py script
 ENTRYPOINT ["python", "dist2mst.py"]

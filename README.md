@@ -1,5 +1,11 @@
 # dist2mst
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub release](https://img.shields.io/github/v/release/genpat-it/dist2mst)](https://github.com/genpat-it/dist2mst/releases)
+[![Docker](https://img.shields.io/badge/docker-available-blue.svg)](https://github.com/genpat-it/dist2mst/pkgs/container/dist2mst)
+[![Bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/recipes/dist2mst/README.html)
+
 Version: 0.0.2  
 Author: GenPat  
 Contact: genpat@izs.it

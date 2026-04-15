@@ -1,2 +1,3 @@
-benchmarks
+__pycache__/
 *.nwk
+benchmarks/results.tsv

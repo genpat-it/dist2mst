@@ -681,19 +681,20 @@ def main(input_file, output_file, cluster_threshold=None, cluster_output=None,
         traceback.print_exc()
         raise
 
-if __name__ == "__main__":
+def main_cli():
+    """Entry point for the dist2mst command-line tool."""
     import argparse
-    
+
     # Version and attribution info
     VERSION = "0.0.2"
     AUTHOR = "GenPat"
     CONTACT = "genpat@izs.it"
-    
+
     print(f"MST Builder v{VERSION}")
     print(f"Author: {AUTHOR}")
     print(f"Contact: {CONTACT}")
     print("-" * 50)
-    
+
     parser = argparse.ArgumentParser(description="Build MST with Numba acceleration and parallelization starting from a symmetric distance matrix. Constructs an optimal tree structure based on minimum spanning tree algorithm with zero-distance grouping.")
     parser.add_argument("input_file", help="TSV file containing the distance matrix")
     parser.add_argument("output_file", help="Output file for the Newick tree")
@@ -707,13 +708,13 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true", help="Minimize progress output")
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     args = parser.parse_args()
-    
+
     # Configure tqdm to disable if quiet mode
     if args.quiet:
         from functools import partial
         tqdm.__init__ = partial(tqdm.__init__, disable=True)
         print("[+] Running in quiet mode (progress bars disabled)")
-    
+
     # Configure thread count
     if args.threads > 0:
         from numba import set_num_threads
@@ -723,31 +724,31 @@ if __name__ == "__main__":
         import multiprocessing
         thread_count = multiprocessing.cpu_count()
         print(f"[+] Running with auto-detected {thread_count} threads")
-    
+
     # Print Numba information
     from numba import __version__ as numba_version
     print(f"[+] Numba version: {numba_version}")
     print(f"[+] NumPy version: {np.__version__}")
-    
+
     # Validate arguments
     if args.min_cluster_size is not None and args.cluster_nwk_dir is None:
         parser.error("--cluster-nwk-dir is required when --min-cluster-size is provided")
-    
+
     if args.max_cluster_size is not None and args.min_cluster_size is None:
         parser.error("--min-cluster-size is required when --max-cluster-size is provided")
-    
+
     if args.cluster_nwk_dir is not None and args.min_cluster_size is None:
         parser.error("--min-cluster-size is required when --cluster-nwk-dir is provided")
-    
+
     if (args.min_cluster_size is not None or args.cluster_nwk_dir is not None) and args.cluster_threshold is None:
         parser.error("--cluster-threshold is required for cluster NWK generation")
-    
+
     if args.min_cluster_size is not None and args.max_cluster_size is not None:
         if args.min_cluster_size > args.max_cluster_size:
             parser.error("--min-cluster-size must be less than or equal to --max-cluster-size")
-    
+
     try:
-        main(args.input_file, args.output_file, 
+        main(args.input_file, args.output_file,
              cluster_threshold=args.cluster_threshold,
              cluster_output=args.cluster_output,
              min_cluster_size=args.min_cluster_size,
@@ -760,3 +761,6 @@ if __name__ == "__main__":
         print(f"[-] Execution failed: {str(e)}")
         import traceback
         traceback.print_exc()
+
+if __name__ == "__main__":
+    main_cli()
